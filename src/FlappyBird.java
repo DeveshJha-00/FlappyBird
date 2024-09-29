@@ -67,6 +67,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
     boolean gameOver = false;
     double score = 0;
+    private Clip backgroundAudioClip;
 
 
     FlappyBird(){
@@ -96,9 +97,8 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         gameLoop = new Timer(1000/60,this); // 60FPS--> we wanna draw 60 frames per sec -> implements keylistener
         gameLoop.start();
         placingPipesLoop.start();
-        
+        playBackgroundMusic();
     }
-
 
 
 
@@ -121,7 +121,6 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
 
     public void move(){       
-        // bird
         bird.y += speedY;  //bird moving up
         speedY += gravity; //bird falling down
         bird.y = Math.max(0,bird.y); //limit to top of screen
@@ -130,10 +129,13 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
         for(int i=0;i<pipes.size();i++){
             Pipe pipe = pipes.get(i);
             pipe.x += speedX; //pipe moving left
+
             if (collision(bird,pipe)){
+                backgroundAudioClip.stop();
                 playHitMusic();
                 gameOver = true;
             }
+
             if (!pipe.pipePassed && bird.x > pipe.x+pipe.width){
                 pipe.pipePassed = true;
                 score += 0.5;
@@ -143,6 +145,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
         if (bird.y > height){
             gameOver = true;
+            backgroundAudioClip.stop();
         }
 
     }
@@ -190,6 +193,27 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
 
     //AUDIO COMPONENTS
+
+    public void playBackgroundMusic(){
+        try{
+            URL backgroundMusicPath = getClass().getResource("/audio/nature.wav");
+            if (backgroundMusicPath != null){
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(backgroundMusicPath);
+                backgroundAudioClip = AudioSystem.getClip();
+                backgroundAudioClip.open(audioStream);
+                backgroundAudioClip.loop(Clip.LOOP_CONTINUOUSLY);
+                backgroundAudioClip.start();
+                // if (collision(bird, null))  .stop();
+            }
+            else{
+                System.out.println("cant access backgroundMusicPath");
+            }
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
     public void playFlapMusic(){
         try{
             URL flapMusicPath = getClass().getResource("/audio/flap.wav");
@@ -246,6 +270,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
 
     
+
     //ACTION-PERFORMED METHODS
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -273,7 +298,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
                 pipes.clear();
                 gameLoop.start();
                 placingPipesLoop.start();
-                
+                backgroundAudioClip.start();
             }
         }
 
