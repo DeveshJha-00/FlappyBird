@@ -1,7 +1,10 @@
+import java.io.IOException;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
 public class App {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args){
 
         int width = 360;
         int height = 640; //bcz bg-img is of those dimensions

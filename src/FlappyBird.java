@@ -3,11 +3,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.net.URL;
 import java.util.*;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import javax.swing.Timer;
 
-public class FlappyBird extends JPanel implements ActionListener, KeyListener{
+public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
     int width = 360, height = 640;
 
@@ -57,7 +61,6 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{
     int gravity = 1;
     int speedX = -4;//pipe moving left speed
     ArrayList<Pipe> pipes;
-    // Random random = new Random();
     
     Timer gameLoop;
     Timer placingPipesLoop;
@@ -127,10 +130,14 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{
         for(int i=0;i<pipes.size();i++){
             Pipe pipe = pipes.get(i);
             pipe.x += speedX; //pipe moving left
-            if (collision(bird,pipe)) gameOver = true;
+            if (collision(bird,pipe)){
+                playHitMusic();
+                gameOver = true;
+            }
             if (!pipe.pipePassed && bird.x > pipe.x+pipe.width){
                 pipe.pipePassed = true;
                 score += 0.5;
+                playPointMusic();
             }
         }
 
@@ -166,6 +173,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{
         if (gameOver){
             g.drawString("GAME OVER!",9,35);
             g.drawString("SCORE : "+ String.valueOf((int)score),9,63);
+            score=0;
         } else{
             g.drawString(String.valueOf((int) score),10,35);
         }
@@ -180,8 +188,64 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{
     }
 
 
-    
 
+    //AUDIO COMPONENTS
+    public void playFlapMusic(){
+        try{
+            URL flapMusicPath = getClass().getResource("/audio/flap.wav");
+            if (flapMusicPath != null){
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(flapMusicPath);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+                clip.start();
+            }
+            else{
+                System.out.println("cant access flapMusicPath");
+            }
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
+    public void playHitMusic(){
+        try{
+            URL hitMusicPath = getClass().getResource("/audio/hit.wav");
+            if (hitMusicPath != null){
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(hitMusicPath);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+                clip.start();
+            }
+            else{
+                System.out.println("cant access hitMusicPath");
+            }
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
+    public void playPointMusic(){
+        try{
+            URL pointMusicPath = getClass().getResource("/audio/point.wav");
+            if (pointMusicPath != null){
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(pointMusicPath);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioStream);
+                clip.start();
+            }
+            else{
+                System.out.println("cant access pointMusicPath");
+            }
+        }
+        catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
+
+    
     //ACTION-PERFORMED METHODS
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -199,6 +263,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener{
     public void keyPressed(KeyEvent e) {
 
         if (e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_UP){
+            playFlapMusic();
             speedY = -7; //reset 
             if (gameOver){
                 //reset conditions
